@@ -1,12 +1,12 @@
 package main
 
 import (
-	"testing"
-	"io/ioutil"
-	"net/http/httptest"
-	"net/http"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
 func TestGetPage(t *testing.T) {
@@ -22,7 +22,7 @@ func TestGetPage(t *testing.T) {
 		t.Error("Failed to get page")
 	}
 
-	assert.Equal(t, ts.URL, p.Url)
+	assert.Equal(t, ts.URL, p.URL)
 	assert.Len(t, p.Links, 23)
 	assert.Len(t, p.Assets, 5)
 }

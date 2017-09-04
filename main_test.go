@@ -1,52 +1,52 @@
 package main
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"sync"
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
+	"sync"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type domainTest struct {
-	url				string
+	url             string
 	expectedBaseURL string
-	expectedDomain 	string
+	expectedDomain  string
 }
 
-var testData = []domainTest {
+var testData = []domainTest{
 	{
-		url: "https://thoeni.io/",
+		url:             "https://thoeni.io/",
 		expectedBaseURL: "https://thoeni.io",
-		expectedDomain: "thoeni.io",
+		expectedDomain:  "thoeni.io",
 	},
 	{
-		url: "https://thoeni.io/blog",
+		url:             "https://thoeni.io/blog",
 		expectedBaseURL: "https://thoeni.io",
-		expectedDomain: "thoeni.io",
+		expectedDomain:  "thoeni.io",
 	},
 	{
-		url: "https://thoeni.io/blog/",
+		url:             "https://thoeni.io/blog/",
 		expectedBaseURL: "https://thoeni.io",
-		expectedDomain: "thoeni.io",
+		expectedDomain:  "thoeni.io",
 	},
 	{
-		url: "http://thoeni.io/blog/post",
+		url:             "http://thoeni.io/blog/post",
 		expectedBaseURL: "http://thoeni.io",
-		expectedDomain: "thoeni.io",
+		expectedDomain:  "thoeni.io",
 	},
 	{
-		url: "http://thoeni.io/index.html",
+		url:             "http://thoeni.io/index.html",
 		expectedBaseURL: "http://thoeni.io",
-		expectedDomain: "thoeni.io",
+		expectedDomain:  "thoeni.io",
 	},
 }
 
 var expectedSitemap map[string]Page
-var testJson []byte
-
+var testJSON []byte
 
 func TestMain(m *testing.M) {
 	f, err := ioutil.ReadFile("./test-data/thoeni.io.0.json")
@@ -55,10 +55,10 @@ func TestMain(m *testing.M) {
 		return
 	}
 
-	testJson = f
+	testJSON = f
 
 	expectedSitemap = make(map[string]Page)
-	if err := json.Unmarshal(testJson, &expectedSitemap); err != nil {
+	if err := json.Unmarshal(testJSON, &expectedSitemap); err != nil {
 		fmt.Printf("Cannot unmarshal file because of: %v\n", err)
 		return
 	}
@@ -92,7 +92,7 @@ func TestCallExampleSite(t *testing.T) {
 	level := 0
 	go func() {
 		for l := range links {
-			assert.Contains(t, expectedSitemap[baseURL].Links, l.Url)
+			assert.Contains(t, expectedSitemap[baseURL].Links, l.URL)
 		}
 	}()
 
@@ -101,7 +101,7 @@ func TestCallExampleSite(t *testing.T) {
 	wgr.Wait()
 	close(links)
 
-	assert.Equal(t, baseURL, sitemap[baseURL].Url)
+	assert.Equal(t, baseURL, sitemap[baseURL].URL)
 	assert.Equal(t, 23, len(sitemap[baseURL].Links))
 }
 
@@ -115,7 +115,7 @@ func TestSaveToFile(t *testing.T) {
 		return
 	}
 
-	assert.Equal(t, testJson, actualFile)
+	assert.Equal(t, testJSON, actualFile)
 
 	os.Remove("TestFlushToFile.json")
 }

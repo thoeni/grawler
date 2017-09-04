@@ -1,8 +1,8 @@
 package main
 
 import (
-	"regexp"
 	"fmt"
+	"regexp"
 )
 
 // ContentRegExp represents a function type that takes a string (ideally a domain) and returns a string (a regular expression)
@@ -42,7 +42,7 @@ func Parse(cre ContentRegExp, domain string, htmlPage []byte) ([]string, error) 
 		urlMap[m[3]] = nil
 	}
 
-	var urls []string = make([]string, 0)
+	var urls = make([]string, 0)
 	for link := range urlMap {
 		urls = append(urls, link)
 	}

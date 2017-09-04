@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"sync"
-	"strings"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"regexp"
+	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 )
 
-var sitemap map[string]Page = make(map[string]Page)
+var sitemap = make(map[string]Page)
 
 var m sync.Mutex
 var links chan resource
@@ -34,7 +34,7 @@ func main() {
 
 	siteDetails, err := extractDomain(*url)
 	if err != nil {
-		fmt.Printf("Input parameter %s is invalid", *url, err)
+		fmt.Printf("Input parameter %s is invalid: %v", *url, err)
 		return
 	}
 
@@ -51,14 +51,14 @@ func main() {
 		}
 	}()
 
-	links <- resource{Url: *url, Level: 0}
+	links <- resource{URL: *url, Level: 0}
 
 	wg.Done()
 	wg.Wait()
 
 	close(links)
 
-	if (*graph == true || *output != "") {
+	if *graph == true || *output != "" {
 		if err := saveToFile(sitemap, *output, *graph); err != nil {
 			fmt.Printf("Error while writing to file, %v", err)
 		}
@@ -71,46 +71,46 @@ func main() {
 }
 
 type resource struct {
-	Url string
+	URL   string
 	Level int
 }
 
 func fetch(baseURL string, domain string, r resource, depth *int, wg *sync.WaitGroup) {
 	defer wg.Done()
-	if (*depth > -1 && r.Level > *depth) {
+	if *depth > -1 && r.Level > *depth {
 		return
 	}
 	m.Lock()
-	if _, visited := sitemap[r.Url]; visited {
+	if _, visited := sitemap[r.URL]; visited {
 		m.Unlock()
 		return
 	}
-	sitemap[r.Url] = Page{Url: r.Url}
+	sitemap[r.URL] = Page{URL: r.URL}
 	m.Unlock()
 
-	p, err := GetPage(r.Url, domain)
+	p, err := GetPage(r.URL, domain)
 	if err != nil {
-		fmt.Printf("error while retrieving the page [%s]: %v", r.Url, err)
+		fmt.Printf("error while retrieving the page [%s]: %v", r.URL, err)
 	}
 
 	atomic.AddUint64(&count, 1)
 
 	m.Lock()
-	sitemap[r.Url] = p
+	sitemap[r.URL] = p
 	m.Unlock()
 
 	for _, l := range p.Links {
 		// Make relative links absolute
 		if strings.HasPrefix(l, "/") {
-			l = baseURL +l
+			l = baseURL + l
 		}
-		links <- resource{l, (r.Level+1)}
+		links <- resource{l, (r.Level + 1)}
 	}
 }
 
 type siteDetails struct {
 	baseURL string
-	domain string
+	domain  string
 }
 
 func extractDomain(url string) (siteDetails, error) {
@@ -124,7 +124,7 @@ func extractDomain(url string) (siteDetails, error) {
 
 	return siteDetails{
 		baseURL: m[1],
-		domain: m[2],
+		domain:  m[2],
 	}, nil
 }
 
